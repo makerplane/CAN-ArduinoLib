@@ -58,6 +58,7 @@
 #define REG_RXM1SIDH  0x24
 
 #define RXB0CTRL_BUKT 0x04
+
 #define EFLG_EWARN    0x01
 #define EFLG_RXWAR    0x02
 #define EFLG_TXWAR    0x04
