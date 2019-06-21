@@ -1,5 +1,5 @@
 
-/*  USB<->CAN Interface for the Arduino 
+/*  USB<->CAN Interface for the Arduino
  *  Copyright (c) 2013 Phil Birkelbach
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -41,7 +41,7 @@ void CAN::write(byte reg, byte *buff, byte count)
   SPI.transfer(reg);
   for(n = 0; n < count; n++) {
     SPI.transfer(buff[n]);
-  }  
+  }
   digitalWrite(ss_pin, HIGH);
 }
 
@@ -55,7 +55,7 @@ void CAN::read(byte reg, byte *buff, byte count)
   SPI.transfer(reg);
   for(n = 0; n < count; n++) {
     buff[n] = SPI.transfer(0x00);
-  }  
+  }
   digitalWrite(ss_pin, HIGH);
 }
 
@@ -64,13 +64,13 @@ void CAN::read(byte reg, byte *buff, byte count)
    the MCP2515.  The regs buffer should be a four byte buffer
    and it represents the SIDH, SIDL, EID8 and EID0 buffers
    respectively.
-   
+
    This function takes the registers and returns a CanFrame
    with the id and the eid members set accordingly. */
 CanFrame CAN::reg2frame(byte *regs)
 {
   CanFrame frame;
-  
+
   if(regs[1] & 0x08) {   // Extended Identifier
     frame.id = ((unsigned long)regs[0] << 21);         //SIDH
     frame.id |= ((unsigned long)regs[1] & 0xE0)<<13;   //SIDL
@@ -185,14 +185,14 @@ CanFrame CAN::readFrame(byte rxb)
 byte CAN::writeFrame(CanFrame frame)
 {
   byte result, i, j;
-  byte regs[4];
+  byte regs[] = { 0x00, 0x00, 0x00, 0x00};
   byte ctrl[] = {REG_TXB0CTRL, REG_TXB1CTRL, REG_TXB2CTRL};
 
   for(i=0; i<3; i++) {  //Loop through all three TX buffers
      read(ctrl[i], &result, 1); //Read the TXBxCTRL register
      if(!(result & TXREQ)) {    //If the TXREQ bit is not set then...
        frame2reg(frame, regs);
-         
+
        digitalWrite(ss_pin, LOW);
        SPI.transfer(CMD_WRITETXB | (i<<1));   //Write the buffers
        SPI.transfer(regs[0]); //SIDH
@@ -207,7 +207,7 @@ byte CAN::writeFrame(CanFrame frame)
        sendCommand(CMD_RTS | (0x01 << i));
        return 0;
      }
-  }   
+  }
   return 1;  //All the buffers are full
 }
 
@@ -218,7 +218,7 @@ int CAN::writeFilter(CanFrame frame, byte filter)
 {
   byte start;
   byte buff[4];
-  
+
   if(filter > 5) {
     return -1;
   }
@@ -226,17 +226,19 @@ int CAN::writeFilter(CanFrame frame, byte filter)
   else           start = (filter - 3) <<2 | 0x10;
   frame2reg(frame, buff);
   write(start, buff, 4);
+  return 0;
 }
 
 int CAN::writeMask(CanFrame frame, byte mask)
 {
   byte start;
   byte buff[4];
-  
+
   if(mask > 1) {
     return -1;
   }
   start = mask<<2 | 0x20;
   frame2reg(frame, buff);
   write(start, buff, 4);
+  return 0;
 }
