@@ -116,7 +116,7 @@
 #define MODE_NORMAL 0x00
 #define MODE_CONFIG 0x80
 
-#define CAN_SETTINGS SPISettings(16000000, MSBFIRST, SPI_MODE0)
+#define CAN_SETTINGS SPISettings(8000000, MSBFIRST, SPI_MODE0)
 
 typedef struct {
   unsigned long id;

@@ -212,13 +212,13 @@ byte CAN::writeFrame(CanFrame frame)
             for(j=0; j<frame.length; j++) {
                 SPI.transfer(frame.data[j]);
             }
-        digitalWrite(ss_pin, HIGH);  // Might need delay here
-        sendCommand(CMD_RTS | (0x01 << i));
-        return 0;
+            digitalWrite(ss_pin, HIGH);  // Might need delay here
+            SPI.endTransaction();
+            sendCommand(CMD_RTS | (0x01 << i));
+            return 0;
         }
     }
     SPI.endTransaction();
-
     return 1;  //All the buffers are full
 }
 
